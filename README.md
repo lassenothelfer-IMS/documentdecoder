@@ -1,56 +1,40 @@
-# Welcome to your Expo app 👋
+# Brieflos (Document Decoder)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Scan a Swiss official letter and get a plain-language explanation of what it says, what you have to do, and by when. Everything runs on the iPhone: no network calls, no analytics. See [SPEC.md](SPEC.md) for the full MVP spec and milestones.
 
-## Get started
+Built with Expo SDK 58, expo-router and TypeScript. On-device AI comes from Apple Foundation Models through [`expo-ai-kit`](https://expo-ai-kit.dev), so the app needs a **development build** on an iPhone with iOS 26+ and Apple Intelligence. Expo Go can't load it.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Develop
 
 ```bash
-npm run reset-project
+npm install
+npm test           # unit tests (jest-expo/node)
+npm run typecheck
+npm run lint
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+### Browser preview
 
-### Other setup steps
+`npx expo start` and press `w`. History, letters and settings work in the browser (SQLite runs as WebAssembly); on-device AI reports "unavailable" there. Keep a single tab open: the browser database allows one tab at a time.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### iPhone development build (from Windows, via EAS)
 
-## Learn more
+Needs a paid Apple Developer Program membership and an iPhone 15 Pro, iPhone 16 or newer on iOS 26+.
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npx eas-cli@latest login
+npx eas-cli@latest device:create          # register the iPhone (choose "Website")
+npx eas-cli@latest build -p ios --profile development
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Install the build from the link EAS prints, turn on Developer Mode on the iPhone (Settings → Privacy & Security), then run `npx expo start` and open the app. Rebuild only after native changes (new native packages or `app.json` edits).
 
-## Join the community
+On the device, Settings → Developer → **On-device AI check** runs one real explanation of a fictional sample letter.
 
-Join our community of developers creating universal apps.
+## Layout
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `src/app/` routes only (Home, letter detail, settings, unavailable, AI check)
+- `src/screens/` screen bodies
+- `src/explainer/` the `DocumentExplainer` interface, schema, prompt and the on-device implementation (`on-device.ios.ts`; other platforms get a stub)
+- `src/db/` SQLite migrations and the letters repository
+- `src/theme/` colours, type ramp and spacing
